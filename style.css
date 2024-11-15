@@ -33,3 +33,51 @@
   text-align: center;
   border: solid 1px #000;
 }
+
+.parse-process {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.parse-process p {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f9f9f9;
+  font-family: monospace;
+  border-left: 3px solid #2196f3;
+  line-height: 1.5;
+}
+
+/* Animation for table rows */
+.lex-process tr {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Animation for parser steps */
+.parse-process p {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Keyframes for fade in up animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ensure animations work smoothly */
+.lex-process,
+.parse-process {
+  overflow: hidden;
+}

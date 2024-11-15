@@ -1,140 +1,221 @@
-class ParseNode {
-  constructor(type, value = "") {
-    this.type = type;
-    this.value = value;
-    this.children = [];
-  }
+const PARSE_SPEED = 100;
 
-  addChild(node) {
-    this.children.push(node);
-  }
+// Grammar rules representation
+const GRAMMAR = {
+  E: [["T", "E'"]],
+  "E'": [["+", "T", "E'"], ["-", "T", "E'"], ["ε"]],
+  T: [["F", "T'"]],
+  "T'": [["*", "F", "T'"], ["/", "F", "T'"], ["ε"]],
+  F: [["(", "E", ")"], ["NUMBER"]],
+};
+
+// Parsing table
+const PARSING_TABLE = {
+  E: {
+    NUMBER: ["T", "E'"],
+    LPAREN: ["T", "E'"],
+  },
+  "E'": {
+    PLUS: ["+", "T", "E'"],
+    MINUS: ["-", "T", "E'"],
+    RPAREN: ["ε"],
+    EOF: ["ε"],
+  },
+  T: {
+    NUMBER: ["F", "T'"],
+    LPAREN: ["F", "T'"],
+  },
+  "T'": {
+    PLUS: ["ε"],
+    MINUS: ["ε"],
+    MULTIPLY: ["*", "F", "T'"],
+    DIVIDE: ["/", "F", "T'"],
+    RPAREN: ["ε"],
+    EOF: ["ε"],
+  },
+  F: {
+    NUMBER: ["NUMBER"],
+    LPAREN: ["(", "E", ")"],
+  },
+};
+
+async function visualizeParseStep(
+  stepNumber,
+  stack,
+  top,
+  lookAhead,
+  description,
+  isLastStep = false,
+  isError = false
+) {
+  const parseOutput = document.querySelector(".parse-process");
+  const row = document.createElement("div");
+
+  // Add animation delay for smoother appearance
+  const style = `
+    ${
+      isLastStep
+        ? isError
+          ? "background-color: #ffebee; border-left: 3px solid #f44336;"
+          : "background-color: #e8f5e9; border-left: 3px solid #4caf50;"
+        : ""
+    }
+    animation-delay: ${50}ms;
+  `;
+
+  row.innerHTML = `
+        <p style="${style}">Step ${stepNumber}:
+           <br>Stack Top: ${top}
+           <br>Look Ahead: ${lookAhead.value || lookAhead.type}
+           <br>Stack: ${stack.join(" ")}
+           <br>Description: ${description}</p>
+    `;
+  parseOutput.appendChild(row);
+
+  // Auto scroll to the new element
+  row.scrollIntoView({ behavior: "smooth", block: "end" });
+
+  await new Promise((resolve) => setTimeout(resolve, PARSE_SPEED));
 }
 
-class Parser {
-  constructor(tokens) {
-    this.tokens = tokens;
-    this.current = 0;
-    this.parseOutput = document.querySelector(".parse-process");
-    this.parseOutput.innerHTML =
-      "<table><thead><tr><th>Step</th><th>Action</th></tr></thead><tbody></tbody></table>";
-    this.tbody = this.parseOutput.querySelector("tbody");
-    this.step = 1;
-  }
+async function parse(tokens) {
+  const stack = ["$", "E"];
+  let currentToken = 0;
+  let stepNumber = 1;
 
-  addParseStep(action) {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-            <td>${this.step++}</td>
-            <td>${action}</td>
-        `;
-    this.tbody.appendChild(row);
-  }
+  // Clear previous parse output and show initial input
+  const parseOutput = document.querySelector(".parse-process");
+  parseOutput.innerHTML = `
+    <h3>Parsing Steps:</h3>
+    <p>Input String: ${tokens.map((t) => t.value || t.type).join(" ")}</p>
+  `;
 
-  peek() {
-    return this.tokens[this.current];
-  }
-
-  consume(expectedType) {
-    const token = this.peek();
-    if (token.type === expectedType) {
-      this.current++;
-      this.addParseStep(`Consumed ${token.type}: ${token.value}`);
-      return token;
-    }
-    throw new Error(`Expected ${expectedType} but got ${token.type}`);
-  }
-
-  // E -> T E'
-  parseE() {
-    this.addParseStep("Parsing E -> T E'");
-    const node = new ParseNode("E");
-    node.addChild(this.parseT());
-    node.addChild(this.parseEPrime());
-    return node;
-  }
-
-  // E' -> + T E' | - T E' | ε
-  parseEPrime() {
-    const node = new ParseNode("E'");
-    const token = this.peek();
-
-    if (token.type === TokenType.PLUS || token.type === TokenType.MINUS) {
-      this.addParseStep(`Parsing E' -> ${token.type} T E'`);
-      node.addChild(new ParseNode("operator", this.consume(token.type).value));
-      node.addChild(this.parseT());
-      node.addChild(this.parseEPrime());
-    } else {
-      this.addParseStep("Parsing E' -> ε");
-      node.addChild(new ParseNode("ε"));
-    }
-    return node;
-  }
-
-  // T -> F T'
-  parseT() {
-    this.addParseStep("Parsing T -> F T'");
-    const node = new ParseNode("T");
-    node.addChild(this.parseF());
-    node.addChild(this.parseTPrime());
-    return node;
-  }
-
-  // T' -> * F T' | / F T' | ε
-  parseTPrime() {
-    const node = new ParseNode("T'");
-    const token = this.peek();
-
-    if (token.type === TokenType.MULTIPLY || token.type === TokenType.DIVIDE) {
-      this.addParseStep(`Parsing T' -> ${token.type} F T'`);
-      node.addChild(new ParseNode("operator", this.consume(token.type).value));
-      node.addChild(this.parseF());
-      node.addChild(this.parseTPrime());
-    } else {
-      this.addParseStep("Parsing T' -> ε");
-      node.addChild(new ParseNode("ε"));
-    }
-    return node;
-  }
-
-  // F -> ( E ) | NUMBER
-  parseF() {
-    const token = this.peek();
-    const node = new ParseNode("F");
-
-    if (token.type === TokenType.LPAREN) {
-      this.addParseStep("Parsing F -> ( E )");
-      node.addChild(
-        new ParseNode("paren", this.consume(TokenType.LPAREN).value)
-      );
-      node.addChild(this.parseE());
-      node.addChild(
-        new ParseNode("paren", this.consume(TokenType.RPAREN).value)
-      );
-    } else if (token.type === TokenType.NUMBER) {
-      this.addParseStep("Parsing F -> NUMBER");
-      node.addChild(
-        new ParseNode("number", this.consume(TokenType.NUMBER).value)
-      );
-    } else {
-      throw new Error(`Unexpected token: ${token.type}`);
-    }
-    return node;
-  }
-}
-
-function parse(tokens) {
   try {
-    const parser = new Parser(tokens);
-    const parseTree = parser.parseE();
-    if (parser.peek().type !== TokenType.EOF) {
-      throw new Error("Expected end of input");
+    while (stack.length > 0) {
+      const top = stack[stack.length - 1];
+      const currentSymbol = tokens[currentToken];
+
+      let description = "";
+
+      if (top === "$" && currentSymbol.type === "EOF") {
+        description = "Success! Both stack top and input are $";
+        await visualizeParseStep(
+          stepNumber++,
+          stack,
+          top,
+          currentSymbol,
+          description,
+          true,
+          false
+        );
+        return true;
+      }
+
+      if (top === "ε") {
+        description = "Pop ε from stack";
+        await visualizeParseStep(
+          stepNumber++,
+          stack,
+          top,
+          currentSymbol,
+          description
+        );
+        stack.pop();
+        continue;
+      }
+
+      if (isTerminal(top)) {
+        if (matchesTerminal(top, currentSymbol)) {
+          description = `Match: ${top} = ${currentSymbol.type}. Pop stack and advance input`;
+          await visualizeParseStep(
+            stepNumber++,
+            stack,
+            top,
+            currentSymbol,
+            description
+          );
+          stack.pop();
+          currentToken++;
+        } else {
+          description = `Error: Expected ${top}, got ${currentSymbol.type}`;
+          await visualizeParseStep(
+            stepNumber++,
+            stack,
+            top,
+            currentSymbol,
+            description,
+            true,
+            true
+          );
+          throw new Error(description);
+        }
+      } else {
+        const production = PARSING_TABLE[top]?.[currentSymbol.type];
+        if (production) {
+          description = `M[${top},${
+            currentSymbol.type
+          }] = ${top} → ${production.join(" ")}`;
+          await visualizeParseStep(
+            stepNumber++,
+            stack,
+            top,
+            currentSymbol,
+            description
+          );
+
+          stack.pop();
+          for (let i = production.length - 1; i >= 0; i--) {
+            stack.push(production[i]);
+          }
+
+          description = `New stack after pushing production in reverse: ${stack.join(
+            " "
+          )}`;
+          await visualizeParseStep(
+            stepNumber++,
+            stack,
+            top,
+            currentSymbol,
+            description
+          );
+        } else {
+          description = `Error: No production in M[${top},${currentSymbol.type}]`;
+          await visualizeParseStep(
+            stepNumber++,
+            stack,
+            top,
+            currentSymbol,
+            description,
+            true,
+            true
+          );
+          throw new Error(description);
+        }
+      }
     }
-    parser.addParseStep("Parsing completed successfully");
-    return parseTree;
+    return false;
   } catch (error) {
-    document.querySelector(
-      ".parse-process"
-    ).innerHTML += `<div class="error">${error.message}</div>`;
+    // Ensure error styling is applied even if there's an exception
+    const errorStep = document.querySelector(".parse-process p:last-child");
+    if (errorStep) {
+      errorStep.style.backgroundColor = "#ffebee";
+      errorStep.style.borderLeft = "3px solid #f44336";
+    }
     throw error;
   }
+}
+
+function isTerminal(symbol) {
+  return !GRAMMAR.hasOwnProperty(symbol);
+}
+
+function matchesTerminal(terminal, token) {
+  if (terminal === "NUMBER") return token.type === "NUMBER";
+  if (terminal === "+") return token.type === "PLUS";
+  if (terminal === "-") return token.type === "MINUS";
+  if (terminal === "*") return token.type === "MULTIPLY";
+  if (terminal === "/") return token.type === "DIVIDE";
+  if (terminal === "(") return token.type === "LPAREN";
+  if (terminal === ")") return token.type === "RPAREN";
+  return false;
 }

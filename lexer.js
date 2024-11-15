@@ -1,4 +1,4 @@
-const CLOCK_SPEED = 50; // 500ms between operations
+const CLOCK_SPEED = 100; // 500ms between operations
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -89,23 +89,27 @@ async function lexer(input) {
 
       // Add new row to table
       const row = document.createElement("tr");
+      row.style.animationDelay = `${50}ms`; // Add slight delay for smoother appearance
       row.innerHTML = `
         <td>${newToken.type}</td>
         <td>${newToken.value}</td>
       `;
       tbody.appendChild(row);
+
+      // Auto scroll to the new row
+      row.scrollIntoView({ behavior: "smooth", block: "end" });
     }
     i++;
   }
   //Add message to after table
 
   // Add EOF token to table
-  const eofToken = new Token(TokenType.EOF, null);
+  const eofToken = new Token(TokenType.EOF, "$");
   tokens.push(eofToken);
   const row = document.createElement("tr");
   row.innerHTML = `
       <td>End Of Token</td>
-      <td>Parsing Successful</td>
+      <td>$</td>
     `;
   tbody.appendChild(row);
 
