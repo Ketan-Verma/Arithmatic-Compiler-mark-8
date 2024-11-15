@@ -1,7 +1,92 @@
+body {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  font-family: "Consolas", "Courier New", monospace;
+  padding: 20px;
+  margin: 0;
+}
+
+.chat-container {
+  background-color: #252526;
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(145deg, #2a2a2a, #252526);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.chat-container input {
+  background-color: #3c3c3c;
+  border: 1px solid #555;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-right: 10px;
+  font-family: "Consolas", monospace;
+  background: rgba(60, 60, 60, 0.8);
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.chat-container input:focus {
+  background: rgba(70, 70, 70, 0.9);
+  box-shadow: 0 0 0 2px rgba(86, 156, 214, 0.4);
+  outline: none;
+}
+
+.chat-container button {
+  background-color: #0e639c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background: linear-gradient(145deg, #0e639c, #1177bb);
+  box-shadow: 0 2px 8px rgba(14, 99, 156, 0.2);
+  transition: all 0.3s ease;
+}
+
+.chat-container button:hover {
+  background-color: #1177bb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 99, 156, 0.3);
+}
+
+.lex-area,
+.parse-area {
+  background-color: #252526;
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  background: linear-gradient(145deg, #282828, #252526);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+h1,
+h2,
+h3 {
+  color: #569cd6;
+  border-bottom: 1px solid #444;
+  padding-bottom: 8px;
+}
+
+pre {
+  background-color: #1e1e1e;
+  padding: 15px;
+  border-radius: 4px;
+  border-left: 3px solid #569cd6;
+  color: #ce9178;
+}
+
 .lex-process table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border: 1px solid #444;
 }
 
 .lex-process th,
@@ -12,11 +97,13 @@
 }
 
 .lex-process th {
-  background-color: #f2f2f2;
+  background-color: #2d2d2d;
+  color: #569cd6;
+  border: 1px solid #444;
 }
 
 .lex-process tr:nth-child(even) {
-  background-color: #eaf6f8;
+  background-color: #252526;
 }
 
 #parsing-table-section table {
@@ -25,7 +112,11 @@
   margin-top: 20px;
   text-align: center;
   border: solid 1px #000;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border: 1px solid #444;
 }
+
 #parsing-table-section table {
   width: 100%;
   border-collapse: collapse;
@@ -39,15 +130,34 @@
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  background-color: #1e1e1e;
+  border: 1px solid #444;
 }
 
 .parse-process p {
   margin: 10px 0;
   padding: 10px;
-  background-color: #f9f9f9;
+  background-color: #252526;
   font-family: monospace;
   border-left: 3px solid #2196f3;
   line-height: 1.5;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease forwards;
+  border-left: 3px solid #569cd6;
+  font-family: "Consolas", monospace;
+  color: #d4d4d4;
+  background: linear-gradient(145deg, #2a2a2a, #252526);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 15px 0;
+  padding: 15px;
+  border-left: 3px solid #569cd6;
+  transition: all 0.3s ease;
+}
+
+.parse-process p:hover {
+  transform: translateX(4px);
 }
 
 /* Animation for table rows */
@@ -69,6 +179,16 @@
   from {
     opacity: 0;
     transform: translateY(20px);
+    background-color: #2d2d2d;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    background-color: #252526;
+  }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -80,4 +200,197 @@
 .lex-process,
 .parse-process {
   overflow: hidden;
+}
+
+/* Add debugging-like indicators */
+.parse-process p::before {
+  content: "⚙️ ";
+  margin-right: 5px;
+}
+
+/* Success/Error states */
+.parse-process p[style*="background-color: #e8f5e9"]::before {
+  content: "✅ ";
+}
+
+.parse-process p[style*="background-color: #ffebee"]::before {
+  content: "❌ ";
+}
+
+/* Terminal cursor effect */
+.parse-process p:last-child::after {
+  content: "▋";
+  animation: blink 1s step-end infinite;
+  color: #569cd6;
+  content: none;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Success/Error message animations */
+.lex-process > div:last-child,
+.parse-process > div:last-child {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Update success/error colors to match theme */
+.parse-process p[style*="background-color: #e8f5e9"] {
+  background-color: #1e392a !important;
+  color: #4caf50 !important;
+  background: linear-gradient(145deg, #1e392a, #1a3326);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+}
+
+.parse-process p[style*="background-color: #ffebee"] {
+  background-color: #392121 !important;
+  color: #f44336 !important;
+  background: linear-gradient(145deg, #392121, #331d1d);
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.1);
+}
+
+/* Info icon and tooltip styles */
+.info-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background: #569cd6;
+  color: #1e1e1e;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 18px;
+  margin-left: 8px;
+  cursor: help;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.info-icon:hover {
+  background: #1177bb;
+  transform: scale(1.1);
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 300px;
+  background: linear-gradient(145deg, #2d2d2d, #252526);
+  color: #d4d4d4;
+  text-align: left;
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 3px solid #569cd6;
+  position: absolute;
+  z-index: 1;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 10px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Code snippet style in tooltips */
+.tooltip-code {
+  background: #1e1e1e;
+  padding: 8px;
+  border-radius: 4px;
+  margin: 5px 0;
+  font-family: "Consolas", monospace;
+  color: #ce9178;
+}
+
+/* Style for parse step container */
+.parse-step {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+/* Style for text part */
+.parse-step .parse-text {
+  flex: 1;
+  margin-right: 20px;
+}
+
+/* Style for diagram part with custom scrollbar */
+.parse-step .parse-diagram {
+  flex: 1;
+  text-align: center;
+  overflow: auto;
+  max-height: 400px;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 6px;
+  background: #1a1a1a;
+}
+
+/* Custom scrollbar styling */
+.parse-diagram::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.parse-diagram::-webkit-scrollbar-track {
+  background: #1e1e1e;
+  border-radius: 4px;
+}
+
+.parse-diagram::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+.parse-diagram::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Canvas styling */
+.parse-step canvas {
+  border: 1px solid #444;
+  background-color: #1e1e1e;
+  border-radius: 4px;
+  margin: 5px;
+}
+
+.parse-diagram svg {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: #1a1a1a;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.parse-diagram svg circle {
+  transition: all 0.3s ease;
+}
+
+.parse-diagram svg circle:hover {
+  fill: #3c3c3c;
+  stroke-width: 2;
+}
+
+.parse-diagram svg line {
+  transition: all 0.3s ease;
+}
+
+.parse-diagram svg text {
+  user-select: none;
 }

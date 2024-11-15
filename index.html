@@ -8,18 +8,39 @@
   </head>
   <body>
     <div class="chat-container">
-      <h1>Visualize what compiler do inside:</h1>
-      <input type="text" placeholder="" value="3+5*2" />
-      <button>Submit</button>
+      <h1>⚡ Modern Compiler Debugger</h1>
+      <div class="debugger-controls">
+        <input type="text" placeholder="Type your expression here..." value="3+5*2" />
+        <button>▶ Compile & Run</button>
+      </div>
     </div>
     <div class="lex-area">
-      <h2>Lexer</h2>
+      <h2>📊 Lexical Analysis</h2>
       <div class="lex-process"></div>
     </div>
     <div class="parse-area">
-      <h2>Parser</h2>
+      <h2>🔍 Syntax Analysis</h2>
       <div id="grammar-section">
-        <h3>Grammar:</h3>
+        <h3>
+          Grammar
+          <div class="tooltip info-icon">ℹ
+            <div class="tooltip-text">
+              <strong>Context-Free Grammar (CFG)</strong>
+              <p>This grammar describes arithmetic expressions with operator precedence:</p>
+              <ul>
+                <li>E represents Expression</li>
+                <li>T represents Term</li>
+                <li>F represents Factor</li>
+              </ul>
+              <p>First Sets:</p>
+              <div class="tooltip-code">
+                FIRST(E) = {NUMBER, (}
+                FIRST(T) = {NUMBER, (}
+                FIRST(F) = {NUMBER, (}
+              </div>
+            </div>
+          </div>
+        </h3>
         <pre>
         E -> T E'
         E' -> + T E' | - T E' | ε
@@ -29,7 +50,25 @@
         </pre>
       </div>
       <div id="parsing-table-section">
-        <h3>Parsing Table:</h3>
+        <h3>
+          Parsing Table
+          <div class="tooltip info-icon">ℹ
+            <div class="tooltip-text">
+              <strong>LL(1) Parsing Table Construction</strong>
+              <p>Built using First and Follow sets:</p>
+              <div class="tooltip-code">
+                FOLLOW(E) = {$, )}
+                FOLLOW(T) = {+, -, $, )}
+                FOLLOW(F) = {+, -, *, /, $, )}
+              </div>
+              <p>Table entries are created by:</p>
+              <ol>
+                <li>For each production A → α, add α to M[A,a] for each terminal a in FIRST(α)</li>
+                <li>If ε is in FIRST(α), add α to M[A,b] for each b in FOLLOW(A)</li>
+              </ol>
+            </div>
+          </div>
+        </h3>
         <table>
           <thead>
             <tr>
@@ -103,7 +142,30 @@
           </tbody>
         </table>
       </div>
-      <div class="parse-process"></div>
+
+      <!-- Add a help section with more detailed explanations -->
+      <div class="parsing-help">
+        <h3>
+          Parsing Process
+          <div class="tooltip info-icon">ℹ
+            <div class="tooltip-text">
+              <strong>LL(1) Parsing Steps</strong>
+              <p>The parser follows these steps:</p>
+              <ol>
+                <li>Initialize stack with $ and start symbol E</li>
+                <li>Compare stack top with current input</li>
+                <li>If they match, pop and advance</li>
+                <li>If stack top is non-terminal, consult parsing table</li>
+                <li>Replace with corresponding production</li>
+              </ol>
+              <p>Success when both stack and input are empty ($)</p>
+            </div>
+          </div>
+        </h3>
+      </div>
+      <div class="parse-process">
+        <!-- Parsing steps with diagrams will be added here -->
+      </div>
   </body>
   <script src="./lexer.js"></script>
   <script src="./parser.js"></script>

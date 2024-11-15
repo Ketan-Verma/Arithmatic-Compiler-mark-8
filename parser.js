@@ -39,17 +39,36 @@ const PARSING_TABLE = {
   },
 };
 
+// Add symbol abbreviation map
+const SYMBOL_ABBREVIATIONS = {
+  NUMBER: "num",
+  PLUS: "+",
+  MINUS: "-",
+  MULTIPLY: "*",
+  DIVIDE: "/",
+  LPAREN: "(",
+  RPAREN: ")",
+  EOF: "$",
+};
+
+function getAbbreviatedSymbol(symbol) {
+  return SYMBOL_ABBREVIATIONS[symbol] || symbol;
+}
+
 async function visualizeParseStep(
   stepNumber,
   stack,
   top,
   lookAhead,
   description,
+  parseTree, // Add parseTree parameter
   isLastStep = false,
   isError = false
 ) {
+  const timestamp = new Date().toISOString().split("T")[1].slice(0, -1);
   const parseOutput = document.querySelector(".parse-process");
   const row = document.createElement("div");
+  row.classList.add("parse-step");
 
   // Add animation delay for smoother appearance
   const style = `
@@ -64,13 +83,29 @@ async function visualizeParseStep(
   `;
 
   row.innerHTML = `
-        <p style="${style}">Step ${stepNumber}:
-           <br>Stack Top: ${top}
-           <br>Look Ahead: ${lookAhead.value || lookAhead.type}
-           <br>Stack: ${stack.join(" ")}
-           <br>Description: ${description}</p>
-    `;
+    <div class="parse-text">
+      <p style="${style}">
+        <span class="timestamp">[${timestamp}]</span> Step ${stepNumber}:
+        <br><span class="debug-label">Stack Top:</span> ${getAbbreviatedSymbol(
+          top
+        )}
+        <br><span class="debug-label">Look Ahead:</span> ${getAbbreviatedSymbol(
+          lookAhead.type
+        )}
+        <br><span class="debug-label">Stack:</span> ${stack
+          .map(getAbbreviatedSymbol)
+          .join(" ")}
+        <br><span class="debug-label">Action:</span> ${description}
+      </p>
+    </div>
+    <div class="parse-diagram">
+      <canvas id="parseTreeCanvas${stepNumber}" width="400" height="300"></canvas>
+    </div>
+  `;
   parseOutput.appendChild(row);
+
+  // Draw the parse tree on the canvas
+  drawParseTree(parseTree, `parseTreeCanvas${stepNumber}`);
 
   // Auto scroll to the new element
   row.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -78,10 +113,122 @@ async function visualizeParseStep(
   await new Promise((resolve) => setTimeout(resolve, PARSE_SPEED));
 }
 
+// Helper function to calculate tree dimensions
+function getTreeDimensions(node, depth = 0) {
+  if (!node) return { depth, breadth: 0 };
+  if (!node.children || node.children.length === 0)
+    return { depth: depth + 1, breadth: 1 };
+
+  let maxDepth = depth + 1;
+  let totalBreadth = 0;
+
+  for (let child of node.children) {
+    let childDims = getTreeDimensions(child, depth + 1);
+    maxDepth = Math.max(maxDepth, childDims.depth);
+    totalBreadth += childDims.breadth;
+  }
+
+  return { depth: maxDepth, breadth: totalBreadth };
+}
+
+function drawParseTree(parseTree, canvasId) {
+  // Create SVG element
+  const container = document.getElementById(canvasId).parentElement;
+  container.innerHTML = ""; // Clear previous content
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", "600"); // Increased height to accommodate larger gaps
+  svg.setAttribute("viewBox", "0 0 800 600"); // Adjusted viewBox
+  container.appendChild(svg);
+
+  // Calculate initial positions
+  const nodeRadius = 20;
+  const levelHeight = 100; // Increased from 60 to 100
+  calculateNodePositions(parseTree, 400, 40, 0, 800);
+
+  // Draw connections first (so they appear behind nodes)
+  drawConnections(parseTree, svg, nodeRadius);
+
+  // Draw nodes
+  drawNodes(parseTree, svg, nodeRadius);
+}
+
+function calculateNodePositions(node, x, y, level, width) {
+  node.x = x;
+  node.y = y;
+
+  if (node.children.length > 0) {
+    const childWidth = width / node.children.length;
+    let startX = x - width / 2 + childWidth / 2;
+
+    node.children.forEach((child, index) => {
+      calculateNodePositions(
+        child,
+        startX + index * childWidth,
+        y + 100, // Increased from 60 to 100
+        level + 1,
+        childWidth
+      );
+    });
+  }
+}
+
+function drawNodes(node, svg, nodeRadius) {
+  // Draw node circle
+  const circle = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
+  circle.setAttribute("cx", node.x);
+  circle.setAttribute("cy", node.y);
+  circle.setAttribute("r", nodeRadius);
+  circle.setAttribute("fill", "#2d2d2d");
+  circle.setAttribute("stroke", "#569cd6");
+  svg.appendChild(circle);
+
+  // Draw node text
+  const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  text.setAttribute("x", node.x);
+  text.setAttribute("y", node.y + 5);
+  text.setAttribute("text-anchor", "middle");
+  text.setAttribute("fill", "#d4d4d4");
+  text.setAttribute("font-family", "Consolas");
+  text.setAttribute("font-size", "14px");
+  text.textContent = getAbbreviatedSymbol(node.symbol);
+  svg.appendChild(text);
+
+  // Recursively draw children
+  node.children.forEach((child) => drawNodes(child, svg, nodeRadius));
+}
+
+function drawConnections(node, svg, nodeRadius) {
+  node.children.forEach((child) => {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", node.x);
+    line.setAttribute("y1", node.y + nodeRadius);
+    line.setAttribute("x2", child.x);
+    line.setAttribute("y2", child.y - nodeRadius);
+    line.setAttribute("stroke", "#569cd6");
+    line.setAttribute("stroke-width", "1.5");
+    svg.appendChild(line);
+
+    drawConnections(child, svg, nodeRadius);
+  });
+}
+
+// Modify parse function to build parseTree and pass it to visualizeParseStep
+
 async function parse(tokens) {
   const stack = ["$", "E"];
   let currentToken = 0;
   let stepNumber = 1;
+
+  // Initialize parse tree with start symbol
+  const parseTreeRoot = new ParseTreeNode("E");
+
+  // Stack to keep track of parse tree nodes
+  const parseTreeStack = [parseTreeRoot];
 
   // Clear previous parse output and show initial input
   const parseOutput = document.querySelector(".parse-process");
@@ -97,6 +244,8 @@ async function parse(tokens) {
 
       let description = "";
 
+      const currentNode = parseTreeStack[parseTreeStack.length - 1];
+
       if (top === "$" && currentSymbol.type === "EOF") {
         description = "Success! Both stack top and input are $";
         await visualizeParseStep(
@@ -105,6 +254,7 @@ async function parse(tokens) {
           top,
           currentSymbol,
           description,
+          parseTreeRoot,
           true,
           false
         );
@@ -113,41 +263,49 @@ async function parse(tokens) {
 
       if (top === "ε") {
         description = "Pop ε from stack";
+        stack.pop();
+        parseTreeStack.pop();
         await visualizeParseStep(
           stepNumber++,
           stack,
           top,
           currentSymbol,
-          description
+          description,
+          parseTreeRoot
         );
-        stack.pop();
         continue;
       }
 
       if (isTerminal(top)) {
         if (matchesTerminal(top, currentSymbol)) {
           description = `Match: ${top} = ${currentSymbol.type}. Pop stack and advance input`;
-          await visualizeParseStep(
-            stepNumber++,
-            stack,
-            top,
-            currentSymbol,
-            description
-          );
           stack.pop();
-          currentToken++;
-        } else {
-          description = `Error: Expected ${top}, got ${currentSymbol.type}`;
+          parseTreeStack.pop();
+          currentNode.symbol = top;
           await visualizeParseStep(
             stepNumber++,
             stack,
             top,
             currentSymbol,
             description,
+            parseTreeRoot
+          );
+          currentToken++;
+        } else {
+          await visualizeParseStep(
+            stepNumber++,
+            stack,
+            top,
+            currentSymbol,
+            description,
+            parseTreeRoot,
             true,
             true
           );
-          throw new Error(description);
+          // Immediately throw error and stop
+          throw new Error(
+            `Parsing error: Expected ${top}, got ${currentSymbol.type}`
+          );
         }
       } else {
         const production = PARSING_TABLE[top]?.[currentSymbol.type];
@@ -155,41 +313,42 @@ async function parse(tokens) {
           description = `M[${top},${
             currentSymbol.type
           }] = ${top} → ${production.join(" ")}`;
-          await visualizeParseStep(
-            stepNumber++,
-            stack,
-            top,
-            currentSymbol,
-            description
-          );
-
           stack.pop();
+          parseTreeStack.pop();
+
+          // Replace non-terminal with production
+          let newNodes = production.map((sym) => new ParseTreeNode(sym));
+          currentNode.children = newNodes;
+
+          // Push production symbols and corresponding parse tree nodes onto stacks
           for (let i = production.length - 1; i >= 0; i--) {
             stack.push(production[i]);
+            parseTreeStack.push(newNodes[i]);
           }
 
-          description = `New stack after pushing production in reverse: ${stack.join(
-            " "
-          )}`;
-          await visualizeParseStep(
-            stepNumber++,
-            stack,
-            top,
-            currentSymbol,
-            description
-          );
-        } else {
-          description = `Error: No production in M[${top},${currentSymbol.type}]`;
           await visualizeParseStep(
             stepNumber++,
             stack,
             top,
             currentSymbol,
             description,
+            parseTreeRoot
+          );
+        } else {
+          await visualizeParseStep(
+            stepNumber++,
+            stack,
+            top,
+            currentSymbol,
+            description,
+            parseTreeRoot,
             true,
             true
           );
-          throw new Error(description);
+          // Immediately throw error and stop
+          throw new Error(
+            `No production in parsing table for ${top} with ${currentSymbol.type}`
+          );
         }
       }
     }
@@ -202,6 +361,16 @@ async function parse(tokens) {
       errorStep.style.borderLeft = "3px solid #f44336";
     }
     throw error;
+  }
+}
+
+// ParseTreeNode class
+class ParseTreeNode {
+  constructor(symbol) {
+    this.symbol = symbol;
+    this.children = [];
+    this.x = 0;
+    this.y = 0;
   }
 }
 
