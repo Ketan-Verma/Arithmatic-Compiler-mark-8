@@ -1,4 +1,4 @@
-const PARSE_SPEED = 100;
+const PARSE_SPEED = 500;
 
 // Grammar rules representation
 const GRAMMAR = {

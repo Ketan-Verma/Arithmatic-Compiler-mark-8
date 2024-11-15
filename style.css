@@ -17,6 +17,7 @@ body {
 }
 
 .chat-container input {
+  min-width: 500px;
   background-color: #3c3c3c;
   border: 1px solid #555;
   color: #fff;
@@ -54,6 +55,12 @@ body {
   box-shadow: 0 4px 12px rgba(14, 99, 156, 0.3);
 }
 
+.debugger-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
 .lex-area,
 .parse-area {
   background-color: #252526;
@@ -77,13 +84,18 @@ pre {
   padding: 15px;
   border-radius: 4px;
   border-left: 3px solid #569cd6;
-  color: #ce9178;
+  color: #ff4800;
+  font-family: "Consolas", monospace;
+  font-size: 24px;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 .lex-process table {
+  max-width: 720px;
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin: 20px;
   background-color: #1e1e1e;
   color: #d4d4d4;
   border: 1px solid #444;
@@ -91,9 +103,9 @@ pre {
 
 .lex-process th,
 .lex-process td {
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
   padding: 8px;
-  text-align: left;
+  text-align: center;
 }
 
 .lex-process th {
@@ -103,7 +115,8 @@ pre {
 }
 
 .lex-process tr:nth-child(even) {
-  background-color: #252526;
+  background-color: #3f3f42;
+  border: 1px solid #444;
 }
 
 #parsing-table-section table {
