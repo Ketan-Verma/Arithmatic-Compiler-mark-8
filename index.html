@@ -8,7 +8,7 @@
   </head>
   <body>
     <div class="chat-container">
-      <h1>⚡ Arithmatic Compiler</h1>
+      <h1>⚡ Modern Compiler Debugger</h1>
       <div class="debugger-controls">
         <input type="text" placeholder="Type your expression here..." value="3+5*2" />
         <button>▶ Compile & Run</button>
@@ -20,8 +20,6 @@
     </div>
     <div class="parse-area">
       <h2>🔍 Syntax Analysis</h2>
-      <div class="gtcontainer">
-
       <div id="grammar-section">
         <h3>
           Grammar
@@ -144,7 +142,6 @@
           </tbody>
         </table>
       </div>
-    </div>
 
       <!-- Add a help section with more detailed explanations -->
       <div class="parsing-help">
@@ -170,6 +167,8 @@
         <!-- Parsing steps with diagrams will be added here -->
       </div>
   </body>
+  <!-- Change D3.js source to local file -->
+  <script src="./lib/d3.v7.min.js"></script>
   <script src="./lexer.js"></script>
   <script src="./parser.js"></script>
   <script src="./app.js"></script>

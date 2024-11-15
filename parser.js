@@ -1,4 +1,4 @@
-const PARSE_SPEED = 500;
+const PARSE_SPEED = 100;
 
 // Grammar rules representation
 const GRAMMAR = {
@@ -113,109 +113,118 @@ async function visualizeParseStep(
   await new Promise((resolve) => setTimeout(resolve, PARSE_SPEED));
 }
 
-// Helper function to calculate tree dimensions
-function getTreeDimensions(node, depth = 0) {
-  if (!node) return { depth, breadth: 0 };
-  if (!node.children || node.children.length === 0)
-    return { depth: depth + 1, breadth: 1 };
-
-  let maxDepth = depth + 1;
-  let totalBreadth = 0;
-
-  for (let child of node.children) {
-    let childDims = getTreeDimensions(child, depth + 1);
-    maxDepth = Math.max(maxDepth, childDims.depth);
-    totalBreadth += childDims.breadth;
-  }
-
-  return { depth: maxDepth, breadth: totalBreadth };
-}
+// ...existing code...
 
 function drawParseTree(parseTree, canvasId) {
-  // Create SVG element
   const container = document.getElementById(canvasId).parentElement;
   container.innerHTML = ""; // Clear previous content
 
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("width", "100%");
-  svg.setAttribute("height", "600"); // Increased height to accommodate larger gaps
-  svg.setAttribute("viewBox", "0 0 800 600"); // Adjusted viewBox
-  container.appendChild(svg);
+  // Set up SVG
+  const width = 600;
+  const height = 400;
+  const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
-  // Calculate initial positions
-  const nodeRadius = 20;
-  const levelHeight = 100; // Increased from 60 to 100
-  calculateNodePositions(parseTree, 400, 40, 0, 800);
+  const svg = d3
+    .select(container)
+    .append("svg")
+    .attr("width", "100%")
+    .attr("height", height)
+    .attr("viewBox", `0 0 ${width} ${height}`);
 
-  // Draw connections first (so they appear behind nodes)
-  drawConnections(parseTree, svg, nodeRadius);
+  // Create D3 tree layout
+  const treeLayout = d3
+    .tree()
+    .size([
+      width - margin.left - margin.right,
+      height - margin.top - margin.bottom,
+    ]);
+
+  // Convert parse tree to D3 hierarchy
+  const root = d3.hierarchy(parseTree);
+  const treeData = treeLayout(root);
+
+  // Draw links
+  svg
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`)
+    .selectAll("path")
+    .data(treeData.links())
+    .join("path")
+    .attr(
+      "d",
+      d3
+        .linkVertical()
+        .x((d) => d.x)
+        .y((d) => d.y)
+    )
+    .attr("fill", "none")
+    .attr("stroke", "#569cd6")
+    .attr("stroke-width", 1.5)
+    .attr("opacity", 0)
+    .transition()
+    .duration(500)
+    .attr("opacity", 1);
 
   // Draw nodes
-  drawNodes(parseTree, svg, nodeRadius);
-}
+  const nodes = svg
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`)
+    .selectAll("g")
+    .data(treeData.descendants())
+    .join("g")
+    .attr("transform", (d) => `translate(${d.x},${d.y})`);
 
-function calculateNodePositions(node, x, y, level, width) {
-  node.x = x;
-  node.y = y;
+  // Add circles for nodes
+  nodes
+    .append("circle")
+    .attr("r", 20)
+    .attr("fill", "#2d2d2d")
+    .attr("stroke", "#569cd6")
+    .attr("stroke-width", 1.5)
+    .attr("opacity", 0)
+    .transition()
+    .duration(500)
+    .attr("opacity", 1);
 
-  if (node.children.length > 0) {
-    const childWidth = width / node.children.length;
-    let startX = x - width / 2 + childWidth / 2;
+  // Add text labels
+  nodes
+    .append("text")
+    .attr("dy", "0.35em")
+    .attr("text-anchor", "middle")
+    .attr("fill", "#d4d4d4")
+    .style("font-family", "Consolas")
+    .style("font-size", "14px")
+    .text((d) => getAbbreviatedSymbol(d.data.symbol))
+    .attr("opacity", 0)
+    .transition()
+    .duration(500)
+    .attr("opacity", 1);
 
-    node.children.forEach((child, index) => {
-      calculateNodePositions(
-        child,
-        startX + index * childWidth,
-        y + 100, // Increased from 60 to 100
-        level + 1,
-        childWidth
-      );
+  // Add hover effects
+  nodes
+    .on("mouseover", function () {
+      d3.select(this)
+        .select("circle")
+        .transition()
+        .duration(200)
+        .attr("r", 25)
+        .attr("fill", "#3c3c3c");
+    })
+    .on("mouseout", function () {
+      d3.select(this)
+        .select("circle")
+        .transition()
+        .duration(200)
+        .attr("r", 20)
+        .attr("fill", "#2d2d2d");
     });
-  }
 }
 
-function drawNodes(node, svg, nodeRadius) {
-  // Draw node circle
-  const circle = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "circle"
-  );
-  circle.setAttribute("cx", node.x);
-  circle.setAttribute("cy", node.y);
-  circle.setAttribute("r", nodeRadius);
-  circle.setAttribute("fill", "#2d2d2d");
-  circle.setAttribute("stroke", "#569cd6");
-  svg.appendChild(circle);
-
-  // Draw node text
-  const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  text.setAttribute("x", node.x);
-  text.setAttribute("y", node.y + 5);
-  text.setAttribute("text-anchor", "middle");
-  text.setAttribute("fill", "#d4d4d4");
-  text.setAttribute("font-family", "Consolas");
-  text.setAttribute("font-size", "14px");
-  text.textContent = getAbbreviatedSymbol(node.symbol);
-  svg.appendChild(text);
-
-  // Recursively draw children
-  node.children.forEach((child) => drawNodes(child, svg, nodeRadius));
-}
-
-function drawConnections(node, svg, nodeRadius) {
-  node.children.forEach((child) => {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", node.x);
-    line.setAttribute("y1", node.y + nodeRadius);
-    line.setAttribute("x2", child.x);
-    line.setAttribute("y2", child.y - nodeRadius);
-    line.setAttribute("stroke", "#569cd6");
-    line.setAttribute("stroke-width", "1.5");
-    svg.appendChild(line);
-
-    drawConnections(child, svg, nodeRadius);
-  });
-}
+// Remove these functions as they're no longer needed
+// calculateNodePositions()
+// drawNodes()
+// drawConnections()
+// getTreeDimensions()
 
 // Modify parse function to build parseTree and pass it to visualizeParseStep
 
