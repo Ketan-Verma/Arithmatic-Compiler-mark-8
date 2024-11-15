@@ -8,9 +8,9 @@
   </head>
   <body>
     <div class="chat-container">
-      <h1>⚡ Modern Compiler Debugger</h1>
+      <h1>⚡ Arithmatic Compiler Design</h1>
       <div class="debugger-controls">
-        <input type="text" placeholder="Type your expression here..." value="3+5*2" />
+        <input type="text" placeholder="Type your expression here..." value="" />
         <button>▶ Compile & Run</button>
       </div>
     </div>
@@ -41,13 +41,20 @@
             </div>
           </div>
         </h3>
-        <pre>
-        E -> T E'
-        E' -> + T E' | - T E' | ε
-        T -> F T'
-        T' -> * F T' | / F T' | ε
-        F -> ( E ) | NUMBER
-        </pre>
+<div class="grammar">
+<ul>
+  <li>E -> T E'</li>
+  <li>E' -> + T E' | - T E' | ε</li>
+  <li>T -> F T'</li>
+  <li>T' -> * F T' | / F T' | ε</li>
+  <li>F -> ( E ) | NUMBER</li>
+</ul>
+  
+  
+  
+  
+  
+</div>        
       </div>
       <div id="parsing-table-section">
         <h3>

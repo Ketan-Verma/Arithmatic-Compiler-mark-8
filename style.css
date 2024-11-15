@@ -5,7 +5,14 @@ body {
   padding: 20px;
   margin: 0;
 }
-
+.debugger-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  min-height: 240px;
+  font-size: 25px;
+}
 .chat-container {
   background-color: #252526;
   padding: 20px;
@@ -21,13 +28,14 @@ body {
   background-color: #3c3c3c;
   border: 1px solid #555;
   color: #fff;
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 12px 16px;
+  border-radius: 16px;
   margin-right: 10px;
   font-family: "Consolas", monospace;
   background: rgba(60, 60, 60, 0.8);
   backdrop-filter: blur(4px);
   transition: all 0.3s ease;
+  font-size: 18px;
 }
 
 .chat-container input:focus {
@@ -37,11 +45,12 @@ body {
 }
 
 .chat-container button {
+  font-size: 18px;
   background-color: #0e639c;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 12px 18px;
+  border-radius: 16px;
   cursor: pointer;
   transition: background-color 0.2s;
   background: linear-gradient(145deg, #0e639c, #1177bb);
@@ -55,12 +64,6 @@ body {
   box-shadow: 0 4px 12px rgba(14, 99, 156, 0.3);
 }
 
-.debugger-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-}
 .lex-area,
 .parse-area {
   background-color: #252526;
@@ -84,26 +87,28 @@ pre {
   padding: 15px;
   border-radius: 4px;
   border-left: 3px solid #569cd6;
-  color: #ff4800;
-  font-family: "Consolas", monospace;
-  font-size: 24px;
-  line-height: 1.5;
-  font-weight: 400;
+  color: #ce9178;
 }
 
 .lex-process table {
-  max-width: 720px;
+  max-width: 560px;
   width: 100%;
   border-collapse: collapse;
-  margin: 20px;
+  margin: auto;
+  margin-top: 20px;
   background-color: #1e1e1e;
   color: #d4d4d4;
   border: 1px solid #444;
 }
-
+.lex-process p {
+  margin-left: 80px;
+  margin-right: 80px;
+  font-weight: 900;
+}
 .lex-process th,
 .lex-process td {
-  /* border: 1px solid #ddd; */
+  /* outline: solid 1px #00fd6a; */
+  border: 1px solid #3f3f3f;
   padding: 8px;
   text-align: center;
 }
@@ -115,11 +120,11 @@ pre {
 }
 
 .lex-process tr:nth-child(even) {
-  background-color: #3f3f42;
-  border: 1px solid #444;
+  background-color: #252526;
 }
 
 #parsing-table-section table {
+  max-width: max-content;
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
@@ -131,11 +136,22 @@ pre {
 }
 
 #parsing-table-section table {
+  font-size: 18px;
+  margin: auto;
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
   text-align: center;
   border: solid 1px #000;
+}
+#parsing-table-section table th {
+  color: #569cd6;
+}
+#parsing-table-section table td,
+#parsing-table-section table th {
+  /* background-color: #2d2d2d; */
+  border: 2px solid #323232;
+  padding: 8px;
 }
 
 .parse-process {
@@ -406,4 +422,12 @@ pre {
 
 .parse-diagram svg text {
   user-select: none;
+}
+
+.grammar ul {
+  list-style: none;
+  font-size: 18px;
+  /* margin: auto; */
+  padding: 1em;
+  max-width: max-content;
 }

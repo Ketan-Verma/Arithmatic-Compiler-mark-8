@@ -90,12 +90,13 @@ async function visualizeParseStep(
           top
         )}
         <br><span class="debug-label">Look Ahead:</span> ${getAbbreviatedSymbol(
-          lookAhead.type
+          lookAhead.value
         )}
-        <br><span class="debug-label">Stack:</span> ${stack
+        
+        <br><span class="debug-label">Action:</span> ${description}
+        <br><span class="debug-label">Stack after Action:</span> ${stack
           .map(getAbbreviatedSymbol)
           .join(" ")}
-        <br><span class="debug-label">Action:</span> ${description}
       </p>
     </div>
     <div class="parse-diagram">
