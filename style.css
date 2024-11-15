@@ -1,0 +1,16 @@
+.lex-process table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.lex-process th,
+.lex-process td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.lex-process th {
+  background-color: #f2f2f2;
+}

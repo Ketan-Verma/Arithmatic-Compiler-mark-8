@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="chat-container">
+      <h1>Visualize what compiler do inside:</h1>
+      <input type="text" placeholder="" value="3+5*2" />
+      <button>Submit</button>
+    </div>
+    <div class="lex-area">
+      <h2>Lexer</h2>
+      <div class="lex-process"></div>
+    </div>
+    <div class="parse-area">
+      <h2>Parser</h2>
+      <div class="parse-process"></div>
+  </body>
+  <script src="./lexer.js"></script>
+  <script src="./parser.js"></script>
+  <script src="./app.js"></script>
+</html>
