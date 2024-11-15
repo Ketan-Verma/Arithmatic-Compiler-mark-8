@@ -14,3 +14,22 @@
 .lex-process th {
   background-color: #f2f2f2;
 }
+
+.lex-process tr:nth-child(even) {
+  background-color: #eaf6f8;
+}
+
+#parsing-table-section table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  text-align: center;
+  border: solid 1px #000;
+}
+#parsing-table-section table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  text-align: center;
+  border: solid 1px #000;
+}

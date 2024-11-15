@@ -18,6 +18,91 @@
     </div>
     <div class="parse-area">
       <h2>Parser</h2>
+      <div id="grammar-section">
+        <h3>Grammar:</h3>
+        <pre>
+        E -> T E'
+        E' -> + T E' | - T E' | ε
+        T -> F T'
+        T' -> * F T' | / F T' | ε
+        F -> ( E ) | NUMBER
+        </pre>
+      </div>
+      <div id="parsing-table-section">
+        <h3>Parsing Table:</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Non-Terminal</th>
+              <th>NUMBER</th>
+              <th>LPAREN</th>
+              <th>PLUS</th>
+              <th>MINUS</th>
+              <th>MULTIPLY</th>
+              <th>DIVIDE</th>
+              <th>RPAREN</th>
+              <th>EOF</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>E</td>
+              <td>T E'</td>
+              <td>T E'</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>E'</td>
+              <td></td>
+              <td></td>
+              <td>+ T E'</td>
+              <td>- T E'</td>
+              <td></td>
+              <td></td>
+              <td>ε</td>
+              <td>ε</td>
+            </tr>
+            <tr>
+              <td>T</td>
+              <td>F T'</td>
+              <td>F T'</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>T'</td>
+              <td></td>
+              <td></td>
+              <td>ε</td>
+              <td>ε</td>
+              <td>* F T'</td>
+              <td>/ F T'</td>
+              <td>ε</td>
+              <td>ε</td>
+            </tr>
+            <tr>
+              <td>F</td>
+              <td>NUMBER</td>
+              <td>( E )</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div class="parse-process"></div>
   </body>
   <script src="./lexer.js"></script>

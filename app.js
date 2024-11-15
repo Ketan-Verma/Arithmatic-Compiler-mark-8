@@ -5,7 +5,9 @@ document
     const inputValue = document.querySelector(".chat-container input").value;
     console.log(inputValue);
     const tokens = await lexer(inputValue);
-    console.log(tokens);
+    console.log("lexer Output");
+    console.table(tokens);
+    const parseTree = parse(tokens);
     // Handle the input value as needed
   });
 // ...existing code...
